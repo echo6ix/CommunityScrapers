@@ -1,0 +1,41 @@
+# This can only scrape the first scene on the performer's index page (most performer's only have one scene on their page)
+name: TurboMoms
+sceneByURL:
+  - action: scrapeXPath
+    url: 
+      - turbomoms.com
+    scraper: sceneScraper
+xPathScrapers:
+  sceneScraper:
+    scene:
+      Performers:
+        Name:
+          selector: //b
+          postProcess:
+            - replace:
+                - regex: \s\(.+\)
+                  with:
+      Title: //h1
+      Details: /html/body/div/table/tbody/tr/td/table[1]/tbody/tr/td/table[3]/tbody/tr/td/font
+      Tags: 
+        Name:
+          selector: /html/body/div/table/tbody/tr/td/table[1]/tbody/tr/td/table[2]/tbody/tr/td/table[1]/tbody/tr/td/font/text()[1]
+          postProcess:
+            - replace:
+                - regex: \,\s
+                  with: ","
+          split: ","
+      Studio:
+        Name:
+          fixed: Turbo Moms
+      # Selecto a thumbnail from "screenshot_001" or "screenshot_024"
+      Image:
+        selector: //img[contains(@src,"screenshot_001")]/@src|//a[contains(@href,"join.")]/@href
+        concat: "|"
+        postProcess:
+          - replace:
+              - regex: join\.
+                with:
+              - regex: (^.+jpg).*(https?.*\.com\/).*
+                with: $2$1
+# Last Updated July 15, 2023
