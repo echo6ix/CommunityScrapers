@@ -1,0 +1,17 @@
+name: FaKings
+sceneByURL:
+  - action: scrapeXPath
+    url:
+      - fakings.com/en/video/
+    scraper: sceneScraper
+xPathScrapers:
+  sceneScraper:
+    scene:
+      Title: //title
+      Details: //meta[@name="description"]/@content
+      Tags:
+        Name:
+          selector: //span[@class="txtinfo enlinea"]/a/text()
+      Performers:
+        Name: //span[@class="txtinfo woman enlinea"]/a/text()
+# Last Updated July 14, 2023
