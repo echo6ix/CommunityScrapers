@@ -39,6 +39,9 @@ xPathScrapers:
           - replace:
               - regex: Read More »
                 with:
+              # Attempt to fix erroneous line breaks where HTML tags existed
+              - regex: \n\n([0-9a-zA-Z\.]+)\n\n
+                with: " $1 "
         concat: "\n\n"
       Tags:
         Name: //div[@class="mb-3"]/a/text()
@@ -60,16 +63,11 @@ xPathScrapers:
 #                  with: _x_800
       URL: &urlAttr
         selector: $url
-        # Sanitize the URL
-        postProcess:
-          - replace:
-              - regex: (https?:\/\/(?:www\.)?[0-9A-za-z-]+\.com\/[0-9A-Za-z-_]+\/[0-9A-Za-z-_]+\/\d+)\/?.*
-                with: $1
       Code: &codeAttr
         selector: $url
         postProcess:
           - replace:
-              - regex: https?:\/\/(?:www\.)?[0-9A-za-z-]+\.com\/[0-9A-Za-z-_]+\/[0-9A-Za-z-_]+\/(\d+)\/?.*
+              - regex: .*\/(\d+)\/?$
                 with: $1
   galleryScraper:
     common:
@@ -84,4 +82,4 @@ xPathScrapers:
       Tags:
         Name: $photopage//div[@class='mb-3']/a/text()
       Performers: *performersAttr
-# Last Updated July 18, 2023
+# Last Updated July 27, 2023
