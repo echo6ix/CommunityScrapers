@@ -28,7 +28,7 @@ xPathScrapers:
             # comment out if desirable
             - replace:
                 - regex: (.*)
-                  with: "$1,redistrubtion"
+                  with: "$1,redistribution"
           split: ","
       Studio:
         Name:
