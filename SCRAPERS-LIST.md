@@ -223,7 +223,7 @@ brasilvr.com|POVR.yml|:heavy_check_mark:|:x:|:x:|:x:|-|VR
 brattyfamily.com|Mypervmom.yml|:heavy_check_mark:|:x:|:x:|:x:|-|-
 brattymilf.com|Nubiles.yml|:heavy_check_mark:|:heavy_check_mark:|:x:|:x:|-|-
 brattysis.com|Nubiles.yml|:heavy_check_mark:|:heavy_check_mark:|:x:|:x:|-|-
-brazilian-transsexuals.com|GroobyNetwork-Brazilian.yml|:heavy_check_mark:|:x:|:x:|:x:|-|Trans
+brazilian-transsexuals.com|GroobyNetwork-Partial.yml|:heavy_check_mark:|:x:|:x:|:x:|-|Trans
 braziltgirls.xxx|GroobyNetwork-Brazilian.yml|:heavy_check_mark:|:x:|:x:|:x:|-|Trans
 brazzers.com|Brazzers.yml|:heavy_check_mark:|:heavy_check_mark:|:x:|:heavy_check_mark:|CDP|-
 breeditraw.com|BreedItRaw.yml|:heavy_check_mark:|:x:|:x:|:heavy_check_mark:|-|Gay
@@ -942,6 +942,7 @@ old4k.com|Vip4K.yml|:heavy_check_mark:|:x:|:x:|:x:|-|-
 oldgoesyoung.com|OldGoesYoung.yml|:heavy_check_mark:|:x:|:x:|:x:|-|-
 oldje-3some.com|Oldje.yml|:heavy_check_mark:|:x:|:x:|:x:|-|-
 oldje.com|Oldje.yml|:heavy_check_mark:|:x:|:x:|:x:|-|-
+oldnanny.com|OldNanny.yml|:heavy_check_mark:|:x:|:x:|:x:|-|-
 oldsfuckdolls.com|DollsHub.yml|:heavy_check_mark:|:x:|:x:|:x:|-|-
 only3xgirls.com|Only3xGirls.yml|:heavy_check_mark:|:x:|:x:|:x:|-|-
 only3xlost.com|Only3xGirls.yml|:heavy_check_mark:|:x:|:x:|:x:|-|-
@@ -1289,7 +1290,7 @@ tgirlpostop.com|GroobyClub.yml|:heavy_check_mark:|:x:|:x:|:x:|-|Trans
 tgirls.porn|GroobyNetwork-Partial.yml|:heavy_check_mark:|:heavy_check_mark:|:x:|:x:|-|Trans
 tgirls.xxx|GroobyNetwork-Partial.yml|:heavy_check_mark:|:heavy_check_mark:|:x:|:x:|-|Trans
 tgirlsex.xxx|GroobyNetwork-Partial.yml|:heavy_check_mark:|:heavy_check_mark:|:x:|:x:|-|Trans
-tgirlsfuck.com|GroobyNetwork-Brazilian.yml|:heavy_check_mark:|:x:|:x:|:x:|-|Trans
+tgirlsfuck.com|GroobyNetwork-Partial.yml|:heavy_check_mark:|:x:|:x:|:x:|-|Trans
 tgirlshookup.com|GroobyNetwork-Partial.yml|:heavy_check_mark:|:heavy_check_mark:|:x:|:x:|-|Trans
 tgirltops.com|GroobyNetwork-Partial.yml|:heavy_check_mark:|:heavy_check_mark:|:x:|:x:|-|Trans
 thatsitcomshow.com|Nubiles.yml|:heavy_check_mark:|:heavy_check_mark:|:x:|:x:|-|-
@@ -1432,7 +1433,7 @@ watchreal.com|Hustler.yml|:heavy_check_mark:|:x:|:x:|:x:|CDP|-
 watchyoujerk.com|WatchYouJerk.yml|:heavy_check_mark:|:x:|:x:|:x:|-|-
 waybig.com|Waybig.yml|:heavy_check_mark:|:x:|:x:|:heavy_check_mark:|-|-
 wcpclub.com|AdultEmpireCash.yml|:heavy_check_mark:|:x:|:heavy_check_mark:|:x:|-|-
-wearehairy.com|wearehairy.yml|:heavy_check_mark:|:heavy_check_mark:|:x:|:x:|-|-
+wearehairy.com|WeAreHairy.yml|:heavy_check_mark:|:heavy_check_mark:|:x:|:heavy_check_mark:|-|-
 webyoung.com|Algolia_Adultime.yml|:heavy_check_mark:|:heavy_check_mark:|:x:|:x:|Python|Lesbian
 wefuckblackgirls.com|WeFuckBlackGirls.yml|:heavy_check_mark:|:x:|:x:|:x:|-|-
 welikegirls.com|Algolia_Adultime.yml|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:x:|Python|-
