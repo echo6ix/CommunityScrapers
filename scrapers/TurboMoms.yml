@@ -24,6 +24,11 @@ xPathScrapers:
             - replace:
                 - regex: \,\s
                   with: ","
+            # studio content is entirely redistributed content, lets add a redistrubtion tag
+            # comment out if desirable
+            - replace:
+                - regex: (.*)
+                  with: "$1,redistribution"
           split: ","
       Studio:
         Name:
