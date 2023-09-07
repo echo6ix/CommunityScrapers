@@ -10,15 +10,9 @@ xPathScrapers:
       $shorturl: //link[@rel="shortlink"]/@href
       $url: //link[@rel="canonical"]/@href
     scene:
+      # Non-official Ferro title
       Title: //main//h1/text()
       Details: //div[@class="single-post"]/p/text()
-      Date:
-        selector: //div[@class="post-date"]/text()
-        postProcess:
-          - replace:
-              - regex: Added\s(\w+\s\d{1,2},\s\d{4}).*
-                with: $1
-          - parseDate: January 2, 2006
       Image: //video/@poster
       Studio:
         Name:
@@ -29,9 +23,8 @@ xPathScrapers:
                   with: $1
             - map:
                 ferronetwork: FerroNetwork
-        URL: $url
         # Uncomment to use site "category" as studio
         # Name: //div[@data-area="area1"]/@data-target
       Performers:
         Name: //a[contains(@href,"/model/")]
-# Last Updated July 14, 2023
+# Last Updated September 07, 2023
