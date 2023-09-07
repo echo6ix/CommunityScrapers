@@ -11,7 +11,13 @@ xPathScrapers:
       $url: //link[@rel="canonical"]/@href
     scene:
       # Non-official Ferro title
-      Title: //main//h1/text()
+      # Attempt to format title into FerroNetwork schema
+      Title:
+        selector: //main//h1/text()
+        postProcess:
+          - replace:
+              - regex: (.+) and (\w+).*
+                with: $1 & $2
       Details: //div[@class="single-post"]/p/text()
       Image: //video/@poster
       Studio:
