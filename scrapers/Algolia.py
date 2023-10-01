@@ -92,7 +92,9 @@ SITES_USING_OVERRIDE_AS_STUDIO_FOR_SCENE = {
     "Dpfanatics": "DP Fanatics",
     "Janedoe": "Jane Doe Pictures",
     "ModernDaySins": "Modern-Day Sins",
-    "Transgressivexxx": "TransgressiveXXX"
+    "Transgressivexxx": "TransgressiveXXX",
+    "Hot House": "Hot House Entertainment",
+    "HotHouse.com": "Hot House Entertainment",
 }
 
 # a list of sites (`sitename_pretty` from the API) which should pick out the
@@ -128,7 +130,8 @@ SITES_USING_NETWORK_AS_STUDIO_FOR_SCENE = [
 # a list of networks (`network_name` from the API) which should pick out the
 # `sitename_pretty` for the studio name for a scene
 NETWORKS_USING_SITENAME_AS_STUDIO_FOR_SCENE = [
-    "Fame Digital"  # this should support all sub-studios listed at https://stashdb.org/studios/cd5591a5-eb26-42fc-a406-b6969a8ef3dd
+    "Fame Digital",  # this should support all sub-studios listed at https://stashdb.org/studios/cd5591a5-eb26-42fc-a406-b6969a8ef3dd
+    "fistinginferno",
 ]
 
 # a dict of directors to use as the studio for a scene
@@ -254,8 +257,10 @@ def write_config(date, app_id, api_key):
 # API Search Data
 def api_search_req(type_search, query, url):
     api_request = None
-    if type_search == "query":
-        api_request = api_search_query(query, url)
+    if type_search == "query_all_scenes":
+        api_request = api_search_query("all_scenes", query, url)
+    if type_search == "query_all_photosets":
+        api_request = api_search_query("all_photosets", query, url)
     if type_search == "id":
         api_request = api_search_id(query, url)
     if api_request:
@@ -304,15 +309,15 @@ def api_search_gallery_id(p_id, url):
     return req
 
 
-def api_search_query(query, url):
+def api_search_query(index_name, query, url):
     request_api = {
         "requests": [{
-            "indexName": "all_scenes",
+            "indexName": index_name,
             "params": "query=" + query + "&hitsPerPage=40&page=0"
         }]
     }
-    req = send_request(url, HEADERS, request_api)
-    return req
+    res = send_request(url, HEADERS, request_api)
+    return res
 
 
 # Searching Result
@@ -726,7 +731,7 @@ def parse_gallery_json(gallery_json: dict, url: str = None) -> dict:
     elif gallery_json.get('title'):
         scrape['title'] = gallery_json['title'].strip()
     # Date
-    scrape['date'] = gallery_json.get('date_online')
+    scrape['date'] = gallery_json.get('date_online') or gallery_json.get('release_date')
     # Details
     scrape['details'] = clean_text(gallery_json.get('description'))
 
@@ -813,6 +818,8 @@ SEARCH_TITLE = FRAGMENT.get("name")
 SCENE_ID = FRAGMENT.get("id")
 SCENE_TITLE = FRAGMENT.get("title")
 SCENE_URL = FRAGMENT.get("url")
+
+# log.trace(f"fragment: {FRAGMENT}")
 
 # ACCESS API
 # Check existing API keys
@@ -910,7 +917,7 @@ if "movie" not in sys.argv and "gallery" not in sys.argv:
     if SEARCH_TITLE:
         SEARCH_TITLE = SEARCH_TITLE.replace(".", " ")
         log.debug(f"[API] Searching for: {SEARCH_TITLE}")
-        api_search = api_search_req("query", SEARCH_TITLE, api_url)
+        api_search = api_search_req("query_all_scenes", SEARCH_TITLE, api_url)
         final_json = None
         if api_search:
             result_search = []
@@ -936,13 +943,13 @@ if "movie" not in sys.argv and "gallery" not in sys.argv:
             log.warning("[API] No result")
     if url_title and api_json is None:
         log.debug("[API] Searching using URL_TITLE")
-        api_search = api_search_req("query", url_title, api_url)
+        api_search = api_search_req("query_all_scenes", url_title, api_url)
         if api_search:
             log.info(f"[API] Search gives {len(api_search)} result(s)")
             api_json = json_parser(api_search)
     if SCENE_TITLE and api_json is None:
         log.debug("[API] Searching using STASH_TITLE")
-        api_search = api_search_req("query", SCENE_TITLE, api_url)
+        api_search = api_search_req("query_all_scenes", SCENE_TITLE, api_url)
         if api_search:
             log.info(f"[API] Search gives {len(api_search)} result(s)")
             api_json = json_parser(api_search)
@@ -966,13 +973,39 @@ elif "movie" in sys.argv:
         #log.debug(scraped_movie)
         print(json.dumps(scraped_movie))
 elif "gallery" in sys.argv:
-    log.debug("Scraping gallery")
-    gallery_id = get_id_from_url(SCENE_URL)
-    if gallery_id:
-        gallery_results = api_search_gallery_id(gallery_id, api_url)
-        gallery = gallery_results.json()["results"][0].get("hits")
-        if gallery:
-            #log.debug(gallery[0])
-            scraped_gallery = parse_gallery_json(gallery[0])
-            #log.debug(scraped_gallery)
-            print(json.dumps(scraped_gallery))
+    scraped_gallery = None
+    if SCENE_URL:
+        if "/video/" in SCENE_URL:
+            log.debug("Scraping scene by URL")
+            scene_id = get_id_from_url(SCENE_URL)
+            api_search_response = api_search_req("id", scene_id, api_url)
+            if api_search_response:
+                # log.debug(f"[API] Search gives {len(api_search_response)} result(s)")
+                # log.trace(f"api_search_response: {api_search_response}")
+                scraped_gallery = parse_gallery_json(api_search_response[0])
+        else:
+            log.debug("Scraping gallery by URL")
+            gallery_id = get_id_from_url(SCENE_URL)
+            if gallery_id:
+                gallery_results = api_search_gallery_id(gallery_id, api_url)
+                gallery = gallery_results.json()["results"][0].get("hits")
+                if gallery:
+                    #log.debug(gallery[0])
+                    scraped_gallery = parse_gallery_json(gallery[0])
+                    #log.debug(scraped_gallery)
+    elif SCENE_TITLE:
+        log.debug("Scraping gallery by fragment")
+        # log.debug(f"[API] Searching using SCENE_TITLE: {SCENE_TITLE}")
+        api_search = api_search_req("query_all_photosets", SCENE_TITLE, api_url)
+        if api_search:
+            log.info(f"[API] Search gives {len(api_search)} result(s)")
+            # log.trace(f"api_search: {api_search}")
+            log.debug(f"Galleries found: {'; '.join([g['title'] for g in api_search])}")
+            scraped_gallery = parse_gallery_json(api_search[0])
+    # Scraping the JSON
+    if scraped_gallery:
+        print(json.dumps(scraped_gallery))
+    else:
+        log.error("Can't find the gallery")
+        print(json.dumps({}))
+        sys.exit()

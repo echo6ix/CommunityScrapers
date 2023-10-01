@@ -1,39 +1,31 @@
-name: "Rod's Room"
+name: Falcon Studios
 sceneByURL:
   - action: script
     url:
-      - rodsroom.com/en/video
+      - falconstudios.com/en/video
+      - hothouse.com/en/video
     script:
       - python
       - Algolia.py
-      - rodsroom
+      - falconstudios
 sceneByFragment:
   action: script
   script:
     - python
     - Algolia.py
-    - rodsroom
+    - falconstudios
 sceneByName:
   action: script
   script:
     - python
     - Algolia.py
-    - rodsroom
+    - falconstudios
     - searchName
 sceneByQueryFragment:
   action: script
   script:
     - python
     - Algolia.py
-    - rodsroom
+    - falconstudios
     - validName
-galleryByURL:
-  - action: script
-    url:
-      - rodsroom.com/en/photo/
-    script:
-      - python
-      - Algolia.py
-      - rodsroom
-      - gallery
-# Last Updated December 26, 2022
+# Last Updated September 09, 2023
