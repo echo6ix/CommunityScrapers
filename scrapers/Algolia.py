@@ -77,7 +77,7 @@ SERIE_USING_OVERRIDE_AS_STUDIO_FOR_SCENE = {
 # for the studio name for a scene
 SERIE_USING_SITENAME_AS_STUDIO_FOR_SCENE = [
     "Evil",         # sitename_pretty: Evil Angel
-    "Trans-Active"  # sitename_pretty: Evil Angel
+    "Trans-Active",  # sitename_pretty: Evil Angel
 ]
 
 # a dict of sites (`sitename_pretty` from the API) which should set the value
@@ -111,7 +111,7 @@ SITES_USING_SITENAME_AS_STUDIO_FOR_SCENE = [
     "Oopsie",
     "Out of the Family",
     "Rocco Siffredi",
-    "Squirtalicious"
+    "Squirtalicious",
 ]
 
 # a list of sites (`sitename_pretty` from the API) which should pick out the
@@ -132,6 +132,7 @@ SITES_USING_NETWORK_AS_STUDIO_FOR_SCENE = [
 NETWORKS_USING_SITENAME_AS_STUDIO_FOR_SCENE = [
     "Fame Digital",  # this should support all sub-studios listed at https://stashdb.org/studios/cd5591a5-eb26-42fc-a406-b6969a8ef3dd
     "fistinginferno",
+    "MyXXXPass",
 ]
 
 # a dict of directors to use as the studio for a scene
@@ -435,9 +436,9 @@ def match_result(api_scene, range_duration=60, single=False, clip_id: str=None):
     match_clip_id = False
     # Using database
     if database_dict:
-        db_duration = int(database_dict["duration"])
-        db_height = str(database_dict["height"])
-        db_size = int(database_dict["size"])
+        db_duration = int(database_dict[0]["duration"])
+        db_height = str(database_dict[0]["height"])
+        db_size = int(database_dict[0]["size"])
         if api_scene.get("download_file_sizes"):
             if db_height == "2160":
                 api_filesize = api_scene["download_file_sizes"].get("4k")
@@ -876,7 +877,7 @@ if "movie" not in sys.argv and "gallery" not in sys.argv:
                     "GraphQL request failed, accessing database directly...")
                 database_dict = check_db(DB_PATH, SCENE_ID)
             else:
-                database_dict = database_dict["file"]
+                database_dict = database_dict["files"]
             log.debug(f"[DATABASE] Info: {database_dict}")
         else:
             database_dict = None

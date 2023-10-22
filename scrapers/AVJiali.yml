@@ -1,19 +1,19 @@
-name: Tenshigao
+name: "AV Jiali"
 sceneByURL:
   - action: scrapeXPath
     url:
-      - tenshigao.com
+      - avjiali.com
     scraper: sceneScraper
 performerByURL:
   - action: scrapeXPath
     url:
-      - tenshigao.com
+      - avjiali.com
     scraper: performerScraper
 xPathScrapers:
   sceneScraper:
     scene:
       Title:
-        selector: //span[@class="mroundedthumbs"]//@alt
+        selector: //h5/a
       Date:
         selector: //div[@class="video-date"]/text()
         postProcess:
@@ -22,12 +22,16 @@ xPathScrapers:
                 with: "$1"
           - parseDate: January 02, 2006
       Performers:
-        Name: //h5/a
-        URL: //h5/a/@href
+        Name: //div[@class="cat"][1]/a[starts-with(@href, 'https://avjiali.com/model')]
+        URL: //div[@class="cat"][1]/a/@href
       Tags:
-        Name: //div[@class="cat"]/a
-      Details:
-        selector: //h1[@class="none"]
+        Name: //div[@class="cat"][2]/a
+      Details: 
+        selector: //p[span[@class="readmore"]]
+        postProcess:
+          - replace:
+              - regex: ... Read More
+                with:
       Image:
         selector: //video[@id="videohtml5tour"]/@poster
         postProcess:
@@ -36,7 +40,7 @@ xPathScrapers:
                 with: "https://"
       Studio:
         Name:
-          fixed: Tenshigao
+          fixed: AV Jiali
   performerScraper:
     common:
       $profile: //div[@class="model-profile"]
@@ -50,10 +54,10 @@ xPathScrapers:
               - regex: None
                 with:
       Aliases:
-        selector: $profile[contains(strong, "Japanese name:")]//text()
+        selector: $profile[contains(strong, "Chinese name:")]//text()
         postProcess:
           - replace:
-              - regex: .*Japanese name:\s*(.*)\s*$
+              - regex: .*Chinese name:\s*(.*)\s*$
                 with: $1
               - regex: None
                 with:
@@ -129,7 +133,7 @@ xPathScrapers:
                 with:
       URL: //link[@rel="canonical"][1]/@href
       Image:
-        selector: //img[@class="smallroundedthumbs"]/@src
+        selector: //img[@class="rounded"]/@src
         postProcess:
           - replace:
               - regex: ^//

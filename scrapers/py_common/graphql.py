@@ -5,23 +5,27 @@ try:
 except ModuleNotFoundError:
     print(
         "You need to install the requests module. (https://docs.python-requests.org/en/latest/user/install/)",
-        file=sys.stderr)
+        file=sys.stderr,
+    )
     print(
         "If you have pip (normally installed with python), run this command in a terminal (cmd): pip install requests",
-        file=sys.stderr)
+        file=sys.stderr,
+    )
     sys.exit()
 
 try:
     import py_common.config as config
     import py_common.log as log
+    from py_common.util import dig
 except ModuleNotFoundError:
     print(
         "You need to download the folder 'py_common' from the community repo! (CommunityScrapers/tree/master/scrapers/py_common)",
-        file=sys.stderr)
+        file=sys.stderr,
+    )
     sys.exit()
 
 
-def callGraphQL(query: str, variables: dict|None=None):
+def callGraphQL(query: str, variables: dict | None = None):
     api_key = config.STASH.get("api_key", "")
     url = config.STASH.get("url", "")
     if not url:
@@ -38,15 +42,15 @@ def callGraphQL(query: str, variables: dict|None=None):
         "Accept": "application/json",
         "Connection": "keep-alive",
         "DNT": "1",
-        "ApiKey": api_key
+        "ApiKey": api_key,
     }
-    json = {'query': query}
+    json = {"query": query}
     if variables is not None:
-        json['variables'] = variables # type: ignore
+        json["variables"] = variables  # type: ignore
     response = requests.post(stash_url, json=json, headers=headers)
     if response.status_code == 200:
         result = response.json()
-        if (errors := result.get("error")):
+        if errors := result.get("error"):
             errors = "\n".join(errors)
             log.error(f"[ERROR][GraphQL] {errors}")
             return None
@@ -123,7 +127,6 @@ def configuration() -> dict | None:
         username
         password
         maxSessionAge
-        trustedProxies
         logFile
         logOut
         logLevel
@@ -135,9 +138,6 @@ def configuration() -> dict | None:
         excludes
         imageExcludes
         customPerformerImageLocation
-        scraperUserAgent
-        scraperCertCheck
-        scraperCDPPath
         stashBoxes {
             name
             endpoint
@@ -158,8 +158,15 @@ def configuration() -> dict | None:
         css
         cssEnabled
         language
-        slideshowDelay
-        disabledDropdownCreate {
+        imageLightbox {
+            slideshowDelay
+            displayMode
+            scaleUp
+            resetZoomOnNav
+            scrollMode
+            scrollAttemptsBeforeChange
+        }
+        disableDropdownCreate {
             performer
             tag
             studio
@@ -181,8 +188,6 @@ def configuration() -> dict | None:
     }
     fragment ConfigDefaultSettingsData on ConfigDefaultSettingsResult {
         scan {
-            useFileMetadata
-            stripFileExtension
             scanGeneratePreviews
             scanGenerateImagePreviews
             scanGenerateSprites
@@ -229,7 +234,6 @@ def configuration() -> dict | None:
         deleteGenerated
     }
     fragment ScraperSourceData on ScraperSource {
-        stash_box_index
         stash_box_endpoint
         scraper_id
     }
@@ -247,10 +251,8 @@ def configuration() -> dict | None:
         createMissing
     }
     """
-    result = callGraphQL(query)
-    if result:
-        return result.get("configuration")
-    return None
+    result = callGraphQL(query) or {}
+    return dig(result, "configuration")
 
 
 def getScene(scene_id: str | int) -> dict | None:
@@ -262,19 +264,16 @@ def getScene(scene_id: str | int) -> dict | None:
     }
     fragment SceneData on Scene {
         id
-        checksum
-        oshash
         title
         details
-        url
+        urls
         date
-        rating
+        rating100
         o_counter
         organized
-        path
-        phash
         interactive
         files {
+            path
             size
             duration
             video_codec
@@ -342,21 +341,14 @@ def getScene(scene_id: str | int) -> dict | None:
     }
     fragment SlimGalleryData on Gallery {
         id
-        checksum
-        path
         title
         date
-        url
+        urls
         details
-        rating
+        rating100
         organized
         image_count
         cover {
-            file {
-                size
-                width
-                height
-            }
             paths {
                 thumbnail
             }
@@ -380,7 +372,10 @@ def getScene(scene_id: str | int) -> dict | None:
         scenes {
             id
             title
-            path
+            files {
+                path
+                basename
+            }
         }
     }
     fragment SlimStudioData on Studio {
@@ -395,17 +390,16 @@ def getScene(scene_id: str | int) -> dict | None:
             id
         }
         details
-        rating
+        rating100
         aliases
     }
     fragment MovieData on Movie {
         id
-        checksum
         name
         aliases
         duration
         date
-        rating
+        rating100
         director
         studio {
             ...SlimStudioData
@@ -418,7 +412,9 @@ def getScene(scene_id: str | int) -> dict | None:
         scenes {
             id
             title
-            path
+            files {
+                path
+            }
         }
     }
     fragment SlimTagData on Tag {
@@ -429,7 +425,6 @@ def getScene(scene_id: str | int) -> dict | None:
     }
     fragment PerformerData on Performer {
         id
-        checksum
         name
         url
         gender
@@ -439,13 +434,13 @@ def getScene(scene_id: str | int) -> dict | None:
         ethnicity
         country
         eye_color
-        height
+        height_cm
         measurements
         fake_tits
         career_length
         tattoos
         piercings
-        aliases
+        alias_list
         favorite
         image_path
         scene_count
@@ -459,22 +454,19 @@ def getScene(scene_id: str | int) -> dict | None:
             stash_id
             endpoint
         }
-        rating
+        rating100
         details
         death_date
         hair_color
         weight
     }
     """
-
     variables = {"id": str(scene_id)}
-    result = callGraphQL(query, variables)
-    if result:
-        return result.get('findScene')
-    return None
+    result = callGraphQL(query, variables) or {}
+    return dig(result, "findScene")
 
 
-def getSceneScreenshot(scene_id: str | int) -> dict | None:
+def getSceneScreenshot(scene_id: str | int) -> str | None:
     query = """
     query FindScene($id: ID!, $checksum: String) {
         findScene(id: $id, checksum: $checksum) {
@@ -486,15 +478,13 @@ def getSceneScreenshot(scene_id: str | int) -> dict | None:
     }
     """
     variables = {"id": str(scene_id)}
-    result = callGraphQL(query, variables)
-    if result:
-        return result.get('findScene')
-    return None
+    result = callGraphQL(query, variables) or {}
+    return dig(result, "findScene", "paths", "screenshot")
 
 
 def getSceneByPerformerId(performer_id: str | int) -> dict | None:
     query = """
-        query FindScenes($filter: FindFilterType, $scene_filter: SceneFilterType, $scene_ids: [Int!]) {
+query FindScenes($filter: FindFilterType, $scene_filter: SceneFilterType, $scene_ids: [Int!]) {
           findScenes(filter: $filter, scene_filter: $scene_filter, scene_ids: $scene_ids) {
             count
             filesize
@@ -509,17 +499,25 @@ def getSceneByPerformerId(performer_id: str | int) -> dict | None:
         
         fragment SceneData on Scene {
           id
-          checksum
-          oshash
           title
           details
-          url
+          urls
           date
-          rating
+          rating100
           o_counter
           organized
-          path
-          phash
+          files {
+              path
+              size
+              duration
+              video_codec
+              audio_codec
+              width
+              height
+              frame_rate
+              bit_rate
+              __typename
+          }
           interactive
           interactive_speed
           captions {
@@ -529,17 +527,6 @@ def getSceneByPerformerId(performer_id: str | int) -> dict | None:
           }
           created_at
           updated_at
-          file {
-            size
-            duration
-            video_codec
-            audio_codec
-            width
-            height
-            framerate
-            bitrate
-            __typename
-          }
           paths {
             screenshot
             preview
@@ -622,22 +609,14 @@ def getSceneByPerformerId(performer_id: str | int) -> dict | None:
         
         fragment SlimGalleryData on Gallery {
           id
-          checksum
-          path
           title
           date
-          url
+          urls
           details
-          rating
+          rating100
           organized
           image_count
           cover {
-            file {
-              size
-              width
-              height
-              __typename
-            }
             paths {
               thumbnail
               __typename
@@ -666,7 +645,9 @@ def getSceneByPerformerId(performer_id: str | int) -> dict | None:
           scenes {
             id
             title
-            path
+            files {
+                path
+            }
             __typename
           }
           __typename
@@ -686,19 +667,18 @@ def getSceneByPerformerId(performer_id: str | int) -> dict | None:
             __typename
           }
           details
-          rating
+          rating100
           aliases
           __typename
         }
         
         fragment MovieData on Movie {
           id
-          checksum
           name
           aliases
           duration
           date
-          rating
+          rating100
           director
           studio {
             ...SlimStudioData
@@ -712,7 +692,9 @@ def getSceneByPerformerId(performer_id: str | int) -> dict | None:
           scenes {
             id
             title
-            path
+            files {
+              path
+            }
             __typename
           }
           __typename
@@ -728,7 +710,6 @@ def getSceneByPerformerId(performer_id: str | int) -> dict | None:
         
         fragment PerformerData on Performer {
           id
-          checksum
           name
           url
           gender
@@ -738,13 +719,13 @@ def getSceneByPerformerId(performer_id: str | int) -> dict | None:
           ethnicity
           country
           eye_color
-          height
+          height_cm
           measurements
           fake_tits
           career_length
           tattoos
           piercings
-          aliases
+          alias_list
           favorite
           ignore_auto_tag
           image_path
@@ -761,7 +742,7 @@ def getSceneByPerformerId(performer_id: str | int) -> dict | None:
             endpoint
             __typename
           }
-          rating
+          rating100
           details
           death_date
           hair_color
@@ -770,24 +751,13 @@ def getSceneByPerformerId(performer_id: str | int) -> dict | None:
         }
     """
     variables = {
-        "filter": {
-            "page": 1,
-            "per_page": 20,
-            "sort": "title",
-            "direction": "ASC"
-        },
+        "filter": {"page": 1, "per_page": 20, "sort": "title", "direction": "ASC"},
         "scene_filter": {
-            "performers": {
-                "value": [str(performer_id)],
-                "modifier": "INCLUDES_ALL"
-            }
-        }
+            "performers": {"value": [str(performer_id)], "modifier": "INCLUDES_ALL"}
+        },
     }
-
-    result = callGraphQL(query, variables)
-    if result:
-        return result.get('findScenes')
-    return None
+    result = callGraphQL(query, variables) or {}
+    return dig(result, "findScenes")
 
 
 def getSceneIdByPerformerId(performer_id: str | int) -> dict | None:
@@ -797,7 +767,9 @@ def getSceneIdByPerformerId(performer_id: str | int) -> dict | None:
             scenes {
                 id
                 title
-                path
+                files {
+                    path
+                }
                 paths {
                     screenshot
                     }
@@ -806,24 +778,13 @@ def getSceneIdByPerformerId(performer_id: str | int) -> dict | None:
         }
     """
     variables = {
-        "filter": {
-            "page": 1,
-            "per_page": 20,
-            "sort": "id",
-            "direction": "DESC"
-        },
+        "filter": {"page": 1, "per_page": 20, "sort": "id", "direction": "DESC"},
         "scene_filter": {
-            "performers": {
-                "value": [str(performer_id)],
-                "modifier": "INCLUDES_ALL"
-            }
-        }
+            "performers": {"value": [str(performer_id)], "modifier": "INCLUDES_ALL"}
+        },
     }
-
-    result = callGraphQL(query, variables)
-    if result:
-        return result.get('findScenes')
-    return None
+    result = callGraphQL(query, variables) or {}
+    return dig(result, "findScenes")
 
 
 def getPerformersByName(performer_name: str) -> dict | None:
@@ -841,7 +802,6 @@ def getPerformersByName(performer_name: str) -> dict | None:
         
         fragment PerformerData on Performer {
           id
-          checksum
           name
           url
           gender
@@ -851,13 +811,13 @@ def getPerformersByName(performer_name: str) -> dict | None:
           ethnicity
           country
           eye_color
-          height
+          height_cm
           measurements
           fake_tits
           career_length
           tattoos
           piercings
-          aliases
+          alias_list
           favorite
           ignore_auto_tag
           image_path
@@ -874,7 +834,7 @@ def getPerformersByName(performer_name: str) -> dict | None:
             endpoint
             __typename
           }
-          rating
+          rating100
           details
           death_date
           hair_color
@@ -897,15 +857,12 @@ def getPerformersByName(performer_name: str) -> dict | None:
             "page": 1,
             "per_page": 20,
             "sort": "name",
-            "direction": "ASC"
+            "direction": "ASC",
         },
-        "performer_filter": {}
+        "performer_filter": {},
     }
-
-    result = callGraphQL(query, variables)
-    if result:
-        return result.get('findPerformers')
-    return None
+    result = callGraphQL(query, variables) or {}
+    return dig(result, "findPerformers")
 
 
 def getPerformersIdByName(performer_name: str) -> dict | None:
@@ -922,7 +879,7 @@ def getPerformersIdByName(performer_name: str) -> dict | None:
         fragment PerformerData on Performer {
           id
           name
-          aliases          
+          alias_list
           }
     """
 
@@ -932,15 +889,13 @@ def getPerformersIdByName(performer_name: str) -> dict | None:
             "page": 1,
             "per_page": 20,
             "sort": "name",
-            "direction": "ASC"
+            "direction": "ASC",
         },
-        "performer_filter": {}
+        "performer_filter": {},
     }
 
-    result = callGraphQL(query, variables)
-    if result:
-        return result.get('findPerformers')
-    return None
+    result = callGraphQL(query, variables) or {}
+    return dig(result, "findPerformers")
 
 
 def getGallery(gallery_id: str | int) -> dict | None:
@@ -952,18 +907,16 @@ def getGallery(gallery_id: str | int) -> dict | None:
     }
     fragment GalleryData on Gallery {
         id
-        checksum
-        path
         created_at
         updated_at
         title
         date
-        url
+        urls
         details
-        rating
+        rating100
         organized
-        images {
-            ...SlimImageData
+        folder {
+            path
         }
         cover {
             ...SlimImageData
@@ -974,7 +927,6 @@ def getGallery(gallery_id: str | int) -> dict | None:
         tags {
             ...SlimTagData
         }
-
         performers {
             ...PerformerData
         }
@@ -984,18 +936,18 @@ def getGallery(gallery_id: str | int) -> dict | None:
     }
     fragment SlimImageData on Image {
         id
-        checksum
         title
-        rating
+        rating100
         organized
         o_counter
-        path
-
-        file {
-            size
-            width
-            height
+        visual_files {
+            ... on ImageFile {
+                path
+                size
+                height
+                width
             }
+        }
 
         paths {
             thumbnail
@@ -1004,7 +956,9 @@ def getGallery(gallery_id: str | int) -> dict | None:
 
         galleries {
             id
-            path
+            files {
+                path
+            }
             title
             }
 
@@ -1039,7 +993,7 @@ def getGallery(gallery_id: str | int) -> dict | None:
             id
         }
         details
-        rating
+        rating100
         aliases
     }
     fragment SlimTagData on Tag {
@@ -1050,7 +1004,6 @@ def getGallery(gallery_id: str | int) -> dict | None:
         }
     fragment PerformerData on Performer {
         id
-        checksum
         name
         url
         gender
@@ -1060,13 +1013,13 @@ def getGallery(gallery_id: str | int) -> dict | None:
         ethnicity
         country
         eye_color
-        height
+        height_cm
         measurements
         fake_tits
         career_length
         tattoos
         piercings
-        aliases
+        alias_list
         favorite
         image_path
         scene_count
@@ -1082,7 +1035,7 @@ def getGallery(gallery_id: str | int) -> dict | None:
         stash_id
         endpoint
         }
-        rating
+        rating100
         details
         death_date
         hair_color
@@ -1090,28 +1043,25 @@ def getGallery(gallery_id: str | int) -> dict | None:
     }
     fragment SlimSceneData on Scene {
         id
-        checksum
-        oshash
         title
         details
-        url
+        urls
         date
-        rating
+        rating100
         o_counter
         organized
-        path
-        phash
         interactive
 
-        file {
+        files {
+            path
             size
             duration
             video_codec
             audio_codec
             width
             height
-            framerate
-            bitrate
+            frame_rate
+            bit_rate
         }
 
         paths {
@@ -1120,7 +1070,6 @@ def getGallery(gallery_id: str | int) -> dict | None:
             stream
             webp
             vtt
-            chapters_vtt
             sprite
             funscript
         }
@@ -1133,8 +1082,10 @@ def getGallery(gallery_id: str | int) -> dict | None:
 
         galleries {
             id
-            path
             title
+            files {
+                path
+            }
         }
 
         studio {
@@ -1170,26 +1121,27 @@ def getGallery(gallery_id: str | int) -> dict | None:
             stash_id
         }
     }
-
-
     """
     variables = {"id": gallery_id}
-    result = callGraphQL(query, variables)
-    if result:
-        return result.get('findGallery')
-    return None
+    result = callGraphQL(query, variables) or {}
+    return dig(result, "findGallery")
 
 
-def getGalleryPath(gallery_id: str | int) -> dict | None:
+def getGalleryPath(gallery_id: str | int) -> str | None:
     query = """
     query FindGallery($id: ID!) {
         findGallery(id: $id) {
-            path
+            folder {
+                path
+            }
+            files {
+                path
+            }
         }
     }
         """
     variables = {"id": gallery_id}
-    result = callGraphQL(query, variables)
-    if result:
-        return result.get('findGallery')
-    return None
+    result = callGraphQL(query, variables) or {}
+    # Galleries can either be a folder full of files or a zip file
+    return dig(result, "findGallery", "folder", "path") \
+        or dig(result, "findGallery", "files", 0, "path")
