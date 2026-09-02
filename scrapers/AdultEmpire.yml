@@ -1,22 +1,22 @@
 name: AdultEmpire
 
 sceneByURL:
-  - action: scrapeXPath
-    url:
-      - adultdvdempire.com/clip
-      - adultempire.com/clip
-    scraper: sceneScraperSingle
-  - action: scrapeXPath
-    url:
-      - adultdvdempire.com
-      - adultempire.com
-    scraper: sceneScraper
+- action: scrapeXPath
+  url:
+  - adultdvdempire.com/clip
+  - adultempire.com/clip
+  scraper: sceneScraperSingle
+- action: scrapeXPath
+  url:
+  - adultdvdempire.com
+  - adultempire.com
+  scraper: sceneScraper
 groupByURL:
-  - action: scrapeXPath
-    url:
-      - adultdvdempire.com
-      - adultempire.com
-    scraper: movieScraper
+- action: scrapeXPath
+  url:
+  - adultdvdempire.com
+  - adultempire.com
+  scraper: movieScraper
 
 performerByName:
   action: scrapeXPath
@@ -24,11 +24,11 @@ performerByName:
   scraper: performerSearch
 
 performerByURL:
-  - action: scrapeXPath
-    url:
-      - adultempire.com
-      - adultdvdempire.com
-    scraper: performerScraper
+- action: scrapeXPath
+  url:
+  - adultempire.com
+  - adultdvdempire.com
+  scraper: performerScraper
 
 sceneByName:
   action: scrapeXPath
@@ -49,9 +49,9 @@ xPathScrapers:
       URLs:
         selector: $perfomerRoot/@href
         postProcess:
-          - replace:
-              - regex: ^
-                with: https://www.adultempire.com
+        - replace:
+          - regex: ^
+            with: https://www.adultempire.com
 
   sceneSearch:
     scene:
@@ -59,9 +59,9 @@ xPathScrapers:
       URL:
         selector: //a[@class="boxcover"]/@href
         postProcess:
-          - replace:
-              - regex: ^
-                with: https://www.adultempire.com
+        - replace:
+          - regex: ^
+            with: https://www.adultempire.com
       Image: //a[@class="boxcover"]/img/@src
 
   movieScraper:
@@ -71,26 +71,26 @@ xPathScrapers:
       Duration:
         selector: //small[contains(text(), "Length")]/following-sibling::text()
         postProcess:
-          - replace:
-              - regex: " hrs. "
-                with: ":"
-              - regex: " mins."
-                with: ":00"
+        - replace:
+          - regex: " hrs. "
+            with: ":"
+          - regex: " mins."
+            with: ":00"
       Date:
         selector: //small[contains(text(), "Released")]/following-sibling::text()
         postProcess:
-          - parseDate: Jan 02 2006
+        - parseDate: Jan 02 2006
       Synopsis:
         selector: //div[contains(@class,"synopsis-content")]/*
         concat: "\n"
         postProcess:
-          - replace:
-              # Since we want to remove only occurences at the end and either
-              # one of them might be missing, we need to run the regex twice
-              - regex: "Show (Less|More)$"
-                with: ""
-              - regex: "Show (Less|More)$"
-                with: ""
+        - replace:
+          # Since we want to remove only occurences at the end and either
+          # one of them might be missing, we need to run the regex twice
+          - regex: "Show (Less|More)$"
+            with: ""
+          - regex: "Show (Less|More)$"
+            with: ""
       Studio:
         Name: //small[contains(text(),"Studio")]/following-sibling::a/text()
       FrontImage: //a[@id="front-cover"]/@data-href
@@ -118,7 +118,7 @@ xPathScrapers:
       Date:
         selector: //strong[contains(text(), "Released")]/following-sibling::text()
         postProcess:
-          - parseDate: Jan 02 2006
+        - parseDate: Jan 02 2006
       Tags:
         Name: //strong[contains(text(), "Attributes")]/following-sibling::a/text()
       Performers:
@@ -126,16 +126,16 @@ xPathScrapers:
         URLs:
           selector: //strong[contains(text(), "Starring")]/following-sibling::a/@href
           postProcess:
-            - replace:
-                - regex: ^
-                  with: "https://www.adultdvdempire.com"
+          - replace:
+            - regex: ^
+              with: "https://www.adultdvdempire.com"
       Image:
         selector: (//*[@data-tid]/@data-tid)[1] | //a[@id="front-cover"]/img/@src
         concat: __SEPARATOR__
         postProcess:
-          - replace:
-              - regex: (\d+).*/([^/]*\d+)[^/\d]*$
-                with: https://imgs1cdn.adultempire.com/backdrop/6000/$2%5f$1/scene-1.jpg
+        - replace:
+          - regex: (\d+).*/([^/]*\d+)[^/\d]*$
+            with: https://imgs1cdn.adultempire.com/backdrop/6000/$2%5f$1/scene-1.jpg
   sceneScraper:
     scene:
       Title: //div[contains(@class, "title-rating-section")]//h1/text()
@@ -145,7 +145,13 @@ xPathScrapers:
       Date:
         selector: //small[contains(text(), "Released")]/following-sibling::text()
         postProcess:
-          - parseDate: Jan 02 2006
+        - parseDate: Jan 02 2006
+      ProductionDate:
+        selector: //li[small[text()='Production Year:']]
+        postProcess:
+        - replace:
+          - regex: .*(\d{4})$
+            with: $1
       Director: //a[@label="Director"]/text()
       Image: //a[@id="front-cover"]/@data-href
       Studio:
@@ -160,9 +166,9 @@ xPathScrapers:
         URLs:
           selector: //a[@label="Performer"]/@href
           postProcess:
-            - replace:
-                - regex: ^
-                  with: "https://www.adultdvdempire.com"
+          - replace:
+            - regex: ^
+              with: "https://www.adultdvdempire.com"
       URL: //meta[@name='og:url']/@content
   performerScraper:
     common:
@@ -172,63 +178,64 @@ xPathScrapers:
       Birthdate:
         selector: $modal//li[contains(text(), 'Born:')]
         postProcess:
-          - replace:
-              - regex: Born:\s+(.*)
-                with: $1
+        - replace:
+          - regex: Born:\s+(.*)
+            with: $1
       Height:
         selector: $modal//li[contains(text(), 'Height:')]
         postProcess:
-          - replace:
-              - regex: Height:\s+(.*)
-                with: $1
-          - feetToCm: true
+        - replace:
+          - regex: Height:\s+(.*)
+            with: $1
+        - feetToCm: true
       Image: //*[@id="content"]/section/div/div[1]/a[1] | /img/@src | //*[@id="content"]/section/div/div[1]/img/@src | //section[@class="container-fluid"]//a[@class="fancy"][@label="Headshot"]/@href
       Country:
         selector: $modal//li[contains(text(), 'From:')]
         postProcess:
-          - replace:
-              - regex: From:\s+(.*)
-                with: $1
+        - replace:
+          - regex: From:\s+(.*)
+            with: $1
       Measurements:
         selector: $modal//li[contains(text(), 'Measurements:')]/text()
         postProcess:
-          - replace:
-              - regex: Measurements:\s+(\d\d\w*)\D+(\d+)\D+(\d+).*
-                with: $1-$2-$3
+        - replace:
+          - regex: Measurements:\s+(\d\d\w*)\D+(\d+)\D+(\d+).*
+            with: $1-$2-$3
       Aliases:
         selector: //h1/following-sibling::div[contains(text(), "Alias:")]
         postProcess:
-          - replace:
-              - regex: "Alias: (.*)"
-                with: $1
+        - replace:
+          - regex: "Alias: (.*)"
+            with: $1
       Details: $modal//h2[contains(text(), "Biography")]/following-sibling::p
       URLs: //link[@rel='canonical']/@href
 
 driver:
   cookies:
-    - CookieURL: "https://www.adultempire.com"
-      Cookies:
-        - Name: "ageConfirmed"
-          Domain: "www.adultempire.com"
-          Value: "true"
-          Path: "/"
-    - CookieURL: "https://www.adultdvdempire.com"
-      Cookies:
-        - Name: "ageConfirmed"
-          Domain: "www.adultdvdempire.com"
-          Value: "true"
-          Path: "/"
-    # replace with your account etoken
-    - CookieURL: "https://www.adultempire.com"
-      Cookies:
-        - Name: "etoken"
-          Domain: "www.adultempire.com"
-          Value: "" # replace with your account etoken
-          Path: "/"
-    - CookieURL: "https://www.adultdvdempire.com"
-      Cookies:
-        - Name: "etoken"
-          Domain: "www.adultdvdempire.com"
-          Value: "" # replace with your account etoken
-          Path: "/"
-# Last Updated September 17, 2025
+  - CookieURL: "https://www.adultempire.com"
+    Cookies:
+    - Name: "ageConfirmed"
+      Domain: "www.adultempire.com"
+      Value: "true"
+      Path: "/"
+  - CookieURL: "https://www.adultdvdempire.com"
+    Cookies:
+    - Name: "ageConfirmed"
+      Domain: "www.adultdvdempire.com"
+      Value: "true"
+      Path: "/"
+  # replace with your account etoken
+  - CookieURL: "https://www.adultempire.com"
+    Cookies:
+    - Name: "etoken"
+      Domain: "www.adultempire.com"
+      Value: "" # replace with your account etoken
+      Path: "/"
+  - CookieURL: "https://www.adultdvdempire.com"
+    Cookies:
+    - Name: "etoken"
+      Domain: "www.adultdvdempire.com"
+      Value: "" # replace with your account etoken
+      Path: "/"
+
+# Last Updated September 2, 2026
